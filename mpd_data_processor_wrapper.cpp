@@ -143,6 +143,12 @@ void mpdssp_PrintEvent(apvEvent_t *evt)
 
 void LoadCommonMode(const char *filename)
 {
+  if( (access(filename, R_OK) == -1) )
+  {
+    cout << "Failed to open common-mode file: " << filename << endl;
+    return;
+  }
+
   int mpd_id, apv_id, t_cm_min, t_cm_max;
   std::ifstream f(filename);
   while(f>>mpd_id>>apv_id>>t_cm_min>>t_cm_max){
@@ -156,9 +162,16 @@ void LoadCommonMode(const char *filename)
 
 void LoadPedestals(const char *filename)
 {
+  if( (access(filename, R_OK) == -1) )
+  {
+    cout << "Failed to open pedestal file: " << filename << endl;
+    return;
+  }
+
   int mpd_id, apv_id, strip_id, t_offset, slot;
   float t_rms;
   char buf[100];
+
   std::ifstream f(filename);
   while(f.getline(buf, sizeof(buf)))
   {

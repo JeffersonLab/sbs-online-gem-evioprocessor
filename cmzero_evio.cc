@@ -70,8 +70,14 @@ void eventProc(const evioDOMNodeP pNode)
 
 int main(int argc, char **argv)
 {
-  LoadCommonMode("/home/braydo/Projects/data/CommonModeRange_986.txt");
-  LoadPedestals("/home/braydo/Projects/data/gem_ped_986.dat");
+  if(argc<4)
+  {
+    printf("usage: cmzero_evio <evio_input_file> <pedestal_file> <common-mode_file>\n");
+    return -1;
+  }
+
+  LoadPedestals(argv[2]);
+  LoadCommonMode(argv[3]);
 
 	int nread = 0;
 	try
