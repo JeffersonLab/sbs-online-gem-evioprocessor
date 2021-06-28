@@ -39,5 +39,9 @@ void LoadCommonMode(const char *filename);
 
 void LoadPedestals(const char *filename);
 
-#endif
+extern int offset_All[FIBER_NUM][APV_NUM_MAX][APV_STRIPS];
+extern int avgAmin_All[FIBER_NUM][APV_NUM_MAX];
+extern int avgAmax_All[FIBER_NUM][APV_NUM_MAX];
+extern float apvThr_All[FIBER_NUM][APV_NUM_MAX][APV_STRIPS];
 
+#endif

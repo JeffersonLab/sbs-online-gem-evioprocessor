@@ -45,7 +45,7 @@ void frame_decoder(
       break;
 
     case S_APV_HEADER:
-      if(!s_evIn.empty() && !s_avgAPreHeader.full())
+      if(!s_evIn.empty())
       {
         val = s_evIn.read();
         if(val.end)
@@ -72,18 +72,16 @@ void frame_decoder(
           avg_pre_header.cnt = 0;
           avg_pre_header.tag = 0;
 
-          //minmax = m_avgAminmax[apv_id];
           ap_uint<26> offset_data = m_offset[15][apv_id];
           minmax.min(12,0) = offset_data(12,0);
           minmax.max(12,0) = offset_data(25,13);
-//printf("min=%d, max=%d\n", minmax.min.to_int(), minmax.max.to_int());
           ps = S_APV_DATA;
         }
       }
       break;
 
     case S_APV_DATA:
-      if(!s_evIn.empty() && !s_sample_data.full())
+      if(!s_evIn.empty())
       {
         ap_fixed<13,13,AP_RND,AP_SAT> adc;
         ap_uint<26> offset_data = m_offset[apv_id][adc_word_cnt];
@@ -118,11 +116,8 @@ void frame_decoder(
       break;
 
     case S_APV_TRAILER:
-      if(!s_avgAPreHeader.full())
-      {
-        s_avgAPreHeader.write(avg_pre_header);
-        ps = S_APV_HEADER;
-      }
+      s_avgAPreHeader.write(avg_pre_header);
+      ps = S_APV_HEADER;
       break;
 
     case S_ERROR:
@@ -148,7 +143,7 @@ void avgB(
   switch(ps)
   {
     case S_IDLE:
-      if(!s_avgAHeader.empty() && !s_avgBPreHeader.full())
+      if(!s_avgAHeader.empty())
       {
         avg_header_t avg_header = s_avgAHeader.read();
         if(avg_header.tag && (avg_header.avg(1,0)==AVG_HEADER_TYPE_APVHDR))
@@ -196,7 +191,7 @@ void avgB(
       break;
 
     case S_READ_APV_DATA:
-      if(!s_avgASamples.empty() && !s_avgBSamplesOut.full())
+      if(!s_avgASamples.empty())
       {
         sample_data_t sample_data = s_avgASamples.read();
         s_avgBSamplesOut.write(sample_data);
@@ -214,11 +209,8 @@ void avgB(
       break;
 
     case S_WRITE_AVGHDR:
-      if(!s_avgBPreHeader.full())
-      {
-        s_avgBPreHeader.write(avg_pre_header);
-        ps = S_IDLE;
-      }
+      s_avgBPreHeader.write(avg_pre_header);
+      ps = S_IDLE;
       break;
 
     case S_ERROR:
@@ -295,7 +287,7 @@ void event_writer(
   switch(ps)
   {
     case S_HEADER:
-      if(!s_avgBHeader.empty() && !s_evOut.full())
+      if(!s_avgBHeader.empty())
       {
         avg_header_t avg_header = s_avgBHeader.read();
         if(avg_header.tag && (avg_header.avg(1,0)==AVG_HEADER_TYPE_APVHDR))
@@ -324,13 +316,6 @@ void event_writer(
           avgB[cnt++] = avg_header.avg;
           if(cnt == 6)
           {
-/*
-printf("avgB: %d %d %d %d %d %d\n",
-    avgB[0].to_int(), avgB[1].to_int(), 
-    avgB[2].to_int(), avgB[3].to_int(), 
-    avgB[4].to_int(), avgB[5].to_int()
-  );
-*/
             sample_n = 0;
             cnt = 0;
             ps = S_READ0;
@@ -396,51 +381,42 @@ printf("avgB: %d %d %d %d %d %d\n",
       break;
 
     case S_WRITE0:
-      if(!s_evOut.full())
-      {
-        // Write samples 0,1
-        event_data.data(12,0)  = s[0];
-        event_data.data(25,13) = s[1];
-        event_data.data(30,26) = sample_n(4,0);
-        event_data.data(31,31) = 0;
-        event_data.end = 0;
-        s_evOut.write(event_data);
+      // Write samples 0,1
+      event_data.data(12,0)  = s[0];
+      event_data.data(25,13) = s[1];
+      event_data.data(30,26) = sample_n(4,0);
+      event_data.data(31,31) = 0;
+      event_data.end = 0;
+      s_evOut.write(event_data);
 
-        ps = S_WRITE1;
-      }
+      ps = S_WRITE1;
       break;
 
     case S_WRITE1:
-      if(!s_evOut.full())
-      {
-        // Write samples 2,3
-        event_data.data(12,0)  = s[2];
-        event_data.data(25,13) = s[3];
-        event_data.data(30,26) = sample_n(6,5);
-        event_data.data(31,31) = 0;
-        event_data.end = 0;
-        s_evOut.write(event_data);
+      // Write samples 2,3
+      event_data.data(12,0)  = s[2];
+      event_data.data(25,13) = s[3];
+      event_data.data(30,26) = sample_n(6,5);
+      event_data.data(31,31) = 0;
+      event_data.end = 0;
+      s_evOut.write(event_data);
 
-        ps = S_WRITE2;
-      }
+      ps = S_WRITE2;
       break;
 
     case S_WRITE2:
-      if(!s_evOut.full())
-      {
-        // Write samples 4,5
-        event_data.data(12,0)  = s[4];
-        event_data.data(25,13) = s[5];
-        event_data.data(30,26) = apv_id;
-        event_data.data(31,31) = 0;
-        event_data.end = 0;
-        s_evOut.write(event_data);
+      // Write samples 4,5
+      event_data.data(12,0)  = s[4];
+      event_data.data(25,13) = s[5];
+      event_data.data(30,26) = apv_id;
+      event_data.data(31,31) = 0;
+      event_data.end = 0;
+      s_evOut.write(event_data);
 
-        if(sample_n++ == 127)
-          ps = S_HEADER;
-        else
-          ps = S_READ0;
-      }
+      if(sample_n++ == 127)
+        ps = S_HEADER;
+      else
+        ps = S_READ0;
       break;
   }
 }
@@ -479,8 +455,8 @@ void avgBSamplesFifoProc(
 
 
 void mpd_data_processor_main(
-    hls::stream<event_data_t>       &s_evIn,
-    hls::stream<event_data_t>       &s_evOut,
+    hls::stream<event_data_t> &s_evIn,
+    hls::stream<event_data_t> &s_evOut,
     ap_uint<1> build_all_samples,
     ap_uint<1> build_debug_headers,
     ap_uint<1> enable_cm,
@@ -505,67 +481,3 @@ void mpd_data_processor_main(
 
   event_writer(s_evOut, s_avgBHeader, s_avgBSamplesIn, build_all_samples, enable_cm, fiber, m_apvThr);
 }
-
-
-
-
-/*
-void mpd_data_processor(
-    hls::stream<event_data_t> &s_evIn,
-    hls::stream<event_data_t> &s_evOut,
-    ap_uint<1> build_all_samples,
-    ap_uint<1> build_debug_headers,
-    ap_uint<1> enable_cm,
-    ap_uint<5> fiber,
-    ap_int<13> m_offset[APV_NUM_MAX][APV_STRIPS],
-    ap_int<13> m_avgAmin[APV_NUM_MAX],
-    ap_int<13> m_avgAmax[APV_NUM_MAX],
-    ap_int<13> m_apvThr[APV_NUM_MAX][APV_STRIPS],
-    ap_int<13> m_apvThrB[APV_NUM_MAX][APV_STRIPS],
-    hls::stream<avg_pre_header_t> &s_avgAPreHeader,
-    hls::stream<avg_pre_header_t> &s_avgBPreHeader,
-    hls::stream<avg_header_t>     &s_avgAHeader,
-    hls::stream<avg_header_t>     &s_avgBHeader
-  )
-{
-#pragma HLS RESOURCE variable=m_apvThrB core=ROM_1P_BRAM
-#pragma HLS RESOURCE variable=m_apvThr core=RAM_1P_BRAM
-#pragma HLS RESOURCE variable=m_avgAmax core=RAM_1P_BRAM
-#pragma HLS RESOURCE variable=m_avgAmin core=RAM_1P_BRAM
-#pragma HLS RESOURCE variable=m_offset core=RAM_1P_BRAM
-#pragma HLS INTERFACE ap_stable port=fiber
-#pragma HLS INTERFACE ap_stable port=enable_cm
-#pragma HLS INTERFACE ap_stable port=build_debug_headers
-#pragma HLS INTERFACE ap_stable port=build_all_samples
-#pragma HLS DATA_PACK variable=s_evOut
-#pragma HLS INTERFACE ap_fifo port=s_evOut
-#pragma HLS DATA_PACK variable=s_evIn
-#pragma HLS INTERFACE ap_fifo port=s_evIn
-#pragma HLS INTERFACE ap_fifo port=s_avgAPreHeader
-#pragma HLS INTERFACE ap_fifo port=s_avgBPreHeader
-#pragma HLS INTERFACE ap_fifo port=s_avgAHeader
-#pragma HLS INTERFACE ap_fifo port=s_avgBHeader
-#pragma HLS DATA_PACK variable=s_avgAPreHeader
-#pragma HLS DATA_PACK variable=s_avgBPreHeader
-#pragma HLS DATA_PACK variable=s_avgAHeader
-#pragma HLS DATA_PACK variable=s_avgBHeader
-#pragma HLS DATAFLOW
-
-  static hls::stream<sample_data_t>    s_avgASamples;
-#pragma HLS STREAM variable=s_avgASamples depth=144 dim=1
-#pragma HLS DATA_PACK variable=s_avgASamples
-  static hls::stream<sample_data_t>    s_avgBSamples[6];
-#pragma HLS STREAM variable=s_avgBSamples depth=144 dim=1
-#pragma HLS DATA_PACK variable=s_avgBSamples
-
-  frame_decoder(s_evIn, s_avgASamples, m_offset, s_avgAPreHeader, m_avgAmin, m_avgAmax);
-
-//  avgHeaderDiv(s_avgAPreHeader, s_avgAHeader);
-
-  avgB(s_avgASamples, s_avgAHeader, s_avgBSamples, s_avgBPreHeader, m_apvThrB);
-
-//  avgHeaderDiv(s_avgBPreHeader, s_avgBHeader);
-
-  event_writer(s_evOut, s_avgBHeader, s_avgBSamplesPair, build_all_samples, enable_cm, fiber, m_apvThr);
-}
-*/

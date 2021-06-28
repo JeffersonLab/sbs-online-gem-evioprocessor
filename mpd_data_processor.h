@@ -58,16 +58,9 @@ typedef struct
   ap_int<13> max;
 } min_max_t;
 
-void avgHeaderDiv(
-    hls::stream<avg_pre_header_t> &s_avgAPreHeader,
-    hls::stream<avg_pre_header_t> &s_avgBPreHeader,
-    hls::stream<avg_header_t> &s_avgAHeader,
-    hls::stream<avg_header_t> &s_avgBHeader
-  );
-
 void mpd_data_processor_main(
-    hls::stream<event_data_t>       &s_evIn,
-    hls::stream<event_data_t>       &s_evOut,
+    hls::stream<event_data_t> &s_evIn,
+    hls::stream<event_data_t> &s_evOut,
     ap_uint<1> build_all_samples,
     ap_uint<1> build_debug_headers,
     ap_uint<1> enable_cm,

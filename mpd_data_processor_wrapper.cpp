@@ -1,4 +1,5 @@
 #include <fstream>
+#include <string>
 #include <ap_int.h>
 #include <hls_stream.h>
 #include "mpd_data_processor_wrapper.h"
@@ -14,6 +15,8 @@ void mpdssp_DecodeEvent(vector<uint32_t> *vec, apvEvent_t *evt)
 {
   enum {S_HEADER, S_APV_W0, S_APV_W1, S_APV_W2};
 	int tag=-1, idx, fiber, mpdid, state, apv_w[3], apvid, apvch, s[6];
+
+  memset(evt, 0, sizeof(apvEvent_t));
 
   if(vec->size() <= 0)
     return;
@@ -70,7 +73,6 @@ void mpdssp_DecodeEvent(vector<uint32_t> *vec, apvEvent_t *evt)
             fiber = (val>>16) & 0x1F;
             mpdid = (val>> 0) & 0x1F;
             state = S_APV_W0;
-            memset(&evt->data[fiber],0,sizeof(evt->data[0]));
             break;
 
           case S_APV_W0:
@@ -122,7 +124,7 @@ void mpdssp_PrintEvent(apvEvent_t *evt)
     if(!(evt->valid[i] & (1<<j)))
       continue;
 
-    printf("[SSP FIBER %d]\n", i, j);
+    printf("[SSP FIBER %d,%d]\n", i, j);
     for(int k=0;k<APV_STRIPS;k++)
     {
       if( evt->data[i][j][k][0] || evt->data[i][j][k][1] ||
@@ -154,7 +156,6 @@ void LoadCommonMode(const char *filename)
   while(f>>mpd_id>>apv_id>>t_cm_min>>t_cm_max){
     avgAmin_All[mpd_id][apv_id] = t_cm_min;
     avgAmax_All[mpd_id][apv_id] = t_cm_max;
-    //cout<<mpd_id<<" "<<apv_id<<" "<<t_cm_min<<" "<<t_cm_max;getchar();
   }
   f.close();
 }
@@ -187,15 +188,15 @@ void LoadPedestals(const char *filename)
 
     if( (tokens.size()==4) && !tokens[0].compare("APV") )
     {
-      slot = stoi(tokens[1]);
-      mpd_id = stoi(tokens[2]);
-      apv_id = stoi(tokens[3]);
+      slot = atoi(tokens[1].c_str());
+      mpd_id = atoi(tokens[2].c_str());
+      apv_id = atoi(tokens[3].c_str());
     }
     else if(tokens.size()==3)
     {
-      strip_id = stoi(tokens[0]);
-      t_offset = stoi(tokens[1]);
-      t_rms = stof(tokens[2]);
+      strip_id = atoi(tokens[0].c_str());
+      t_offset = atoi(tokens[1].c_str());
+      t_rms = atof(tokens[2].c_str());
 
       if( (mpd_id>=0) && (mpd_id<32) && (apv_id>=0) && (apv_id<15) && (strip_id>=0) && (strip_id<128) )
       {

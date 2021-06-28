@@ -1,0 +1,21 @@
+############################################################
+## This file is generated automatically by Vivado HLS.
+## Please DO NOT edit it.
+## Copyright (C) 1986-2017 Xilinx, Inc. All Rights Reserved.
+############################################################
+open_project mpd_data_processor
+set_top mpd_data_processor_main
+add_files ../mpd_data_processor.cpp
+add_files ../mpd_data_processor.h
+add_files ../mpd_data_processor_wrapper.cpp
+add_files ../mpd_data_processor_wrapper.h
+add_files -tb ../mpd_data_processor_tb.cpp
+open_solution "solution1"
+set_part {xc7vx550tffg1927-1} -tool vivado
+create_clock -period 8 -name default
+set_clock_uncertainty 1
+source "./mpd_data_processor/solution1/directives.tcl"
+csim_design -compiler gcc
+csynth_design
+cosim_design
+export_design -format ip_catalog
