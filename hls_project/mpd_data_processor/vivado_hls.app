@@ -1,4 +1,4 @@
-<project xmlns="com.autoesl.autopilot.project" top="mpd_data_processor_main" name="mpd_data_processor">
+<project xmlns="com.autoesl.autopilot.project" name="mpd_data_processor" top="mpd_data_processor_main">
     <files>
         <file name="../../../mpd_data_processor_tb.cpp" sc="0" tb="1" cflags=""/>
         <file name="../mpd_data_processor.cpp" sc="0" tb="false" cflags=""/>

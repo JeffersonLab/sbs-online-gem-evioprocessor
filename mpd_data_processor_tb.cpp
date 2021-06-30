@@ -1,13 +1,18 @@
 #include <stdlib.h>
+#include <string.h>
+#include <math.h>
 #include "mpd_data_processor.h"
 #include "mpd_data_processor_wrapper.h"
+
+#define RAND_SEED(i)  srand(i)
+#define RAND_NUM()    ((double)rand() / RAND_MAX)
 
 apvEvent_t gApvEvent;
 
 double rand_norm(double mean, double std)
 {
-  double u = drand48();
-  double v = drand48();
+  double u = RAND_NUM();
+  double v = RAND_NUM();
   return mean+std*sqrt(-2.0*log(u))*cos(2*M_PI*v);
 }
 
@@ -28,7 +33,7 @@ int main(int argc, char *argv[])
       0.00, 0.00, 0.00, 0.00, 0.00, 0.00
     };
 
-  srand48(1);
+  RAND_SEED(1);
 
   // Clear thresholds/offsets
   memset(offset_All, 0, sizeof(offset_All));
@@ -45,7 +50,7 @@ int main(int argc, char *argv[])
       avgAmax_All[t_fiber][i] = t_cm_max;
       for(int j=0;j<APV_STRIPS;j++)
       {
-        offset_All[t_fiber][i][j] = drand48()*t_offset_range;
+        offset_All[t_fiber][i][j] = RAND_NUM()*t_offset_range;
         apvThr_All[t_fiber][i][j] = t_thr;
       }
     }
@@ -66,13 +71,13 @@ int main(int argc, char *argv[])
   {
     if(t_apvmask & (1<<i))
     {
-      double cm = t_cm_min+drand48()*(t_cm_max-t_cm_min);
+      double cm = t_cm_min+RAND_NUM()*(t_cm_max-t_cm_min);
       for(int j=0;j<APV_STRIPS;j++)
       {
-        if(drand48() < t_hit_prob)
+        if(RAND_NUM() < t_hit_prob)
         {
-          double a = drand48()*t_hit_amp;
-          int t = drand48()*12.0; // random time/phase offset
+          double a = RAND_NUM()*t_hit_amp;
+          int t = RAND_NUM()*12.0; // random time/phase offset
           for(int k=0;k<APV_SAMPLE_MAX;k++)
             gApvEvent.data[t_fiber][i][j][k] = cm+rand_norm(0,t_noise)+a*pulse[k+t];
         }
