@@ -1,6 +1,8 @@
 #ifndef MPD_DATA_PROCESSOR_WRAPPER_H
 #define MPD_DATA_PROCESSOR_WRAPPER_H
 
+#include <stdint.h>
+#include <unistd.h>
 #include <vector>
 #include "mpd_data_processor.h"
 

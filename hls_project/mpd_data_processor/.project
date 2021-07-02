@@ -52,19 +52,19 @@
 			<location>/home/braydo/Projects/sbs-online-gem-evioprocessor/mpd_data_processor.h</location>
 		</link>
 		<link>
-			<name>source/mpd_data_processor_wrapper.cpp</name>
+			<name>testbench/mpd_data_processor_tb.cpp</name>
+			<type>1</type>
+			<location>/home/braydo/Projects/sbs-online-gem-evioprocessor/mpd_data_processor_tb.cpp</location>
+		</link>
+		<link>
+			<name>testbench/mpd_data_processor_wrapper.cpp</name>
 			<type>1</type>
 			<location>/home/braydo/Projects/sbs-online-gem-evioprocessor/mpd_data_processor_wrapper.cpp</location>
 		</link>
 		<link>
-			<name>source/mpd_data_processor_wrapper.h</name>
+			<name>testbench/mpd_data_processor_wrapper.h</name>
 			<type>1</type>
 			<location>/home/braydo/Projects/sbs-online-gem-evioprocessor/mpd_data_processor_wrapper.h</location>
-		</link>
-		<link>
-			<name>testbench/mpd_data_processor_tb.cpp</name>
-			<type>1</type>
-			<location>/home/braydo/Projects/sbs-online-gem-evioprocessor/mpd_data_processor_tb.cpp</location>
 		</link>
 		<link>
 			<name>solution1/constraints/.xml.directive</name>

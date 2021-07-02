@@ -4,12 +4,6 @@
             <pragma name="DATAFLOW"/>
         </directive>
         <directive functionName="mpd_data_processor_main" label="" functionLabel="">
-            <pragma name="INTERFACE">
-                <option name="ap_ctrl_none" value="" positionalBoolean="mode"/>
-                <option name="port" value="return" positionalBoolean="4"/>
-            </pragma>
-        </directive>
-        <directive functionName="mpd_data_processor_main" label="" functionLabel="">
             <pragma name="DATA_PACK">
                 <option name="variable" value="s_evIn" positionalBoolean="4"/>
             </pragma>
@@ -135,6 +129,12 @@
         <directive functionName="avgBSamplesFifoProc" label="" functionLabel="">
             <pragma name="PIPELINE">
                 <option name="enable_flush" value="" positionalBoolean="1"/>
+            </pragma>
+        </directive>
+        <directive functionName="mpd_data_processor_main" label="" functionLabel="">
+            <pragma name="INTERFACE">
+                <option name="ap_ctrl_none" value="" positionalBoolean="mode"/>
+                <option name="port" value="return" positionalBoolean="4"/>
             </pragma>
         </directive>
     </sourceFile>

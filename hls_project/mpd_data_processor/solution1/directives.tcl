@@ -4,7 +4,6 @@
 ## Copyright (C) 1986-2017 Xilinx, Inc. All Rights Reserved.
 ############################################################
 set_directive_dataflow "mpd_data_processor_main"
-set_directive_interface -mode ap_ctrl_none "mpd_data_processor_main"
 set_directive_data_pack "mpd_data_processor_main" s_evIn
 set_directive_interface -mode ap_fifo "mpd_data_processor_main" s_evIn
 set_directive_data_pack "mpd_data_processor_main" s_evOut
@@ -28,3 +27,4 @@ set_directive_pipeline -II 2 -enable_flush "avgB"
 set_directive_pipeline -II 64 -enable_flush "avgHeaderDiv"
 set_directive_pipeline -II 2 -enable_flush "event_writer"
 set_directive_pipeline -enable_flush "avgBSamplesFifoProc"
+set_directive_interface -mode ap_ctrl_none "mpd_data_processor_main"
