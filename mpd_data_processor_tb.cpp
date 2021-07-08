@@ -115,5 +115,8 @@ int main(int argc, char *argv[])
   // process gApvEvent here with simple algorithm and compare directly against apvEvent_new for any errors
   // can loop this process (random event, hw algorithm process, sw algorithm process, check)
 
+  //Vimukthi
+  sortingAlgo(&gApvEvent);
+  
   return 0;
 }
