@@ -46,4 +46,7 @@ extern int avgAmin_All[FIBER_NUM][APV_NUM_MAX];
 extern int avgAmax_All[FIBER_NUM][APV_NUM_MAX];
 extern float apvThr_All[FIBER_NUM][APV_NUM_MAX][APV_STRIPS];
 
+//Vimukthi
+void sortingAlgo(apvEvent_t *evt);
+
 #endif
