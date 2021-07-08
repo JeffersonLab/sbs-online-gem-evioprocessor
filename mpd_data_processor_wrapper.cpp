@@ -4,6 +4,14 @@
 #include <hls_stream.h>
 #include "mpd_data_processor_wrapper.h"
 
+//vimukthi //start
+
+#include <unistd.h>
+int access(const char *path, int amode);
+
+#include <cstdlib>
+//end
+
 // Settings from files
 int offset_All[FIBER_NUM][APV_NUM_MAX][APV_STRIPS];
 int avgAmin_All[FIBER_NUM][APV_NUM_MAX];
@@ -367,3 +375,60 @@ vector<uint32_t> mpdssp_ProcessEvent(
   return uivec;
 }
 
+//Vimukthi ..........
+
+struct BstNode{
+	int32_t dataN; BstNode*left; BstNode*right;
+};
+
+BstNode*GetNewNode(int32_t dataN){
+	BstNode*newNode=new BstNode();
+	newNode -> dataN=dataN;
+	newNode -> left = newNode -> right = NULL;
+	return newNode;
+}
+
+BstNode*Insert(BstNode*root,int32_t dataN){
+	if (root==NULL){
+		root= GetNewNode(dataN);
+	}
+	else if (dataN<=root->dataN){
+		root->left = Insert(root->left,dataN);
+	}
+	else { root->right = Insert(root -> right,dataN);
+	}
+	return root;
+}
+
+int treeSize(BstNode* root) {
+    if(root == NULL) return 0;
+    else
+        return treeSize(root->left) + treeSize(root->right) + 1;
+}
+
+void BsttoArray(BstNode *root, int32_t A[])
+{
+    static int pos = 0;
+    if(root == NULL) return;
+
+    BsttoArray(root->left, A);
+    A[pos++] = root->dataN;
+    BsttoArray(root->right, A);
+
+}
+
+void sortingAlgo(apvEvent_t *evt) //only sorting the APV0 as at now
+{
+	vector<uint32_t> *vec;
+	BstNode*root = NULL;
+	for(int i=0;i<APV_STRIPS;i++)
+		for(int j=0;j<6;j++)
+			root = Insert(root,evt -> data[0][0][i][j]);
+	int treeSZ = treeSize(root);
+	int32_t Arr [treeSZ];
+	BsttoArray(root,Arr);
+	cout<<"Sorted Array"<<"\n";
+	for(int k = 0; k < treeSZ; k++)
+    	cout << Arr[k] << "\n";
+	cout << endl;
+}
