@@ -417,18 +417,25 @@ void BsttoArray(BstNode *root, int32_t A[])
 
 }
 
-void sortingAlgo(apvEvent_t *evt) //only sorting the APV0 as at now
+void sortingAlgo(apvEvent_t *evt,int j,BstNode*root=NULL)
 {
+
 	vector<uint32_t> *vec;
-	BstNode*root = NULL;
-	for(int i=0;i<APV_STRIPS;i++)
-		for(int j=0;j<6;j++)
-			root = Insert(root,evt -> data[0][0][i][j]);
+	//BstNode*root=NULL;
+	for(int i{0};i<APV_STRIPS;i++)
+	{
+		root = Insert(root,evt -> data[0][0][i][j]);
+
+	}
 	int treeSZ = treeSize(root);
 	int32_t Arr [treeSZ];
 	BsttoArray(root,Arr);
 	cout<<"Sorted Array"<<"\n";
 	for(int k = 0; k < treeSZ; k++)
+	{
     	cout << Arr[k] << "\n";
+
+	}
 	cout << endl;
+
 }
