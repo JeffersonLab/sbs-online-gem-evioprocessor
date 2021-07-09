@@ -377,10 +377,6 @@ vector<uint32_t> mpdssp_ProcessEvent(
 
 //Vimukthi ..........
 
-struct BstNode{
-	int32_t dataN; BstNode*left; BstNode*right;
-};
-
 BstNode*GetNewNode(int32_t dataN){
 	BstNode*newNode=new BstNode();
 	newNode -> dataN=dataN;
