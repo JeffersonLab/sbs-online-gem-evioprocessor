@@ -116,7 +116,12 @@ int main(int argc, char *argv[])
   // can loop this process (random event, hw algorithm process, sw algorithm process, check)
 
   //Vimukthi
-  sortingAlgo(&gApvEvent);
+  BstNode*root= NULL;
+  sortingAlgo(&gApvEvent,0,root);
+
+  BstNode*root1=NULL;
+  sortingAlgo(&gApvEvent,1,root1);
+
   
   return 0;
 }
