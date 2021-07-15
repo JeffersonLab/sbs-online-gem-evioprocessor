@@ -51,6 +51,7 @@ typedef struct  BstNode{
 	int32_t dataN; BstNode*left; BstNode*right;
 };
 
-void sortingAlgo(apvEvent_t *evt,int j,BstNode*root);
+int32_t*sortingAlgo0(apvEvent_t *evt,int apv,int timesample,BstNode*root);
+int32_t commonmode_correction(int32_t A[]);
 
 #endif
