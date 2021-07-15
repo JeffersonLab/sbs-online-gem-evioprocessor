@@ -116,12 +116,15 @@ int main(int argc, char *argv[])
   // can loop this process (random event, hw algorithm process, sw algorithm process, check)
 
   //Vimukthi
-  BstNode*root= NULL;
-  sortingAlgo(&gApvEvent,0,root);
-
-  BstNode*root1=NULL;
-  sortingAlgo(&gApvEvent,1,root1);
-
+  BstNode*rootk=NULL;
+    for (int apv_num {0}; apv_num<16;apv_num++)
+  {
+	    if(!(t_apvmask & (1<<apv_num)))
+	      continue;
+	  	for (int time_sample{0};time_sample<6;time_sample++){
+	  		  cout<<"APV: " << apv_num<<" "<<"Timesample: "<< time_sample<<" common mode correction: "<<commonmode_correction(sortingAlgo0(&gApvEvent,apv_num,time_sample,rootk))<<endl;
+	  	  }
+  }
   
   return 0;
 }
