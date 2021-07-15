@@ -10,6 +10,8 @@
 int access(const char *path, int amode);
 
 #include <cstdlib>
+
+int pos{}; //used in BsttoArray function
 //end
 
 // Settings from files
@@ -404,7 +406,8 @@ int treeSize(BstNode* root) {
 
 void BsttoArray(BstNode *root, int32_t A[])
 {
-    static int pos = 0;
+    //static int pos = 0; //issue is here I don't know how to resolve this
+	// global variable pos is used here
     if(root == NULL) return;
 
     BsttoArray(root->left, A);
@@ -413,25 +416,31 @@ void BsttoArray(BstNode *root, int32_t A[])
 
 }
 
-void sortingAlgo(apvEvent_t *evt,int j,BstNode*root=NULL)
+
+int32_t*sortingAlgo0(apvEvent_t *evt,int apv,int timesample,BstNode*root=NULL)
 {
 
-	vector<uint32_t> *vec;
-	//BstNode*root=NULL;
 	for(int i{0};i<APV_STRIPS;i++)
 	{
-		root = Insert(root,evt -> data[0][0][i][j]);
+		root = Insert(root,evt -> data[0][apv][i][timesample]);
 
 	}
 	int treeSZ = treeSize(root);
-	int32_t Arr [treeSZ];
-	BsttoArray(root,Arr);
-	cout<<"Sorted Array"<<"\n";
-	for(int k = 0; k < treeSZ; k++)
+	int32_t Arr0 [treeSZ];
+	BsttoArray(root,Arr0);
+	pos = 0;
+	return Arr0;
+}
+
+
+int32_t commonmode_correction(int32_t A[])
+{
+	int32_t total{0};
+	int32_t avg{0};
+	for (int i{0};i<20 /*N*/;i++)
 	{
-    	cout << Arr[k] << "\n";
-
+		total = total + A[i];
 	}
-	cout << endl;
-
+	avg=total/20;
+	return avg;
 }
