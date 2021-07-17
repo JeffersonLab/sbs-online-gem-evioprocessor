@@ -52,7 +52,7 @@ typedef struct  BstNode{
 };
 
 typedef struct {
-	int32_t  values[32][16][128][6];
+	int32_t  values[FIBER_NUM][APV_NUM_MAX][APV_STRIPS][APV_SAMPLE_MAX];
 } corr;
 
 
