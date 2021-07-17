@@ -417,12 +417,12 @@ void BsttoArray(BstNode *root, int32_t A[])
 }
 
 
-int32_t*sortingAlgo0(apvEvent_t *evt,int apv,int timesample,BstNode*root=NULL)
+int32_t*sortingAlgo0(apvEvent_t *evt,int fiber, int apv,int timesample,BstNode*root=NULL)
 {
 
 	for(int i{0};i<APV_STRIPS;i++)
 	{
-		root = Insert(root,evt -> data[0][apv][i][timesample]);
+		root = Insert(root,evt -> data[fiber][apv][i][timesample]);
 
 	}
 	int treeSZ = treeSize(root);
@@ -443,4 +443,33 @@ int32_t commonmode_correction(int32_t A[])
 	}
 	avg=total/20;
 	return avg;
+}
+
+
+void commonmode_substraction(apvEvent_t *evt,BstNode*root=NULL,corr*corrections=NULL)
+{
+	 for (int fiber{0}; fiber<32; fiber++)
+	  {
+		 for (int i{0};i<APV_NUM_MAX;i++){
+			 if(!(evt->valid[fiber] & (1<<i)))
+			 		     continue;
+			 for (int j{0};j<APV_STRIPS;j++){
+		 		for (int k{0}; k<6;k++){
+		 			corrections->values[fiber][i][j][k]=commonmode_correction(sortingAlgo0(evt,fiber,i,k,root));
+		 			}
+		 		}
+		 	}
+	  }
+	 for (int fiber{0}; fiber<32; fiber++)
+	  {
+		 for (int i{0};i<APV_NUM_MAX;i++){
+			 if(!(evt->valid[fiber] & (1<<i)))
+			 		     continue;
+			 for (int j{0};j<APV_STRIPS;j++){
+		 		for (int k{0}; k<6;k++){
+		 			evt->data[fiber][i][j][k]= evt->data[fiber][i][j][k]- corrections->values[fiber][i][j][k];
+		 			}
+		 		}
+		 	}
+	  }
 }
