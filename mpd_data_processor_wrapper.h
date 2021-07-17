@@ -51,7 +51,15 @@ typedef struct  BstNode{
 	int32_t dataN; BstNode*left; BstNode*right;
 };
 
-int32_t*sortingAlgo0(apvEvent_t *evt,int apv,int timesample,BstNode*root);
+typedef struct {
+	int32_t  values[32][16][128][6];
+} corr;
+
+
+int32_t*sortingAlgo0(apvEvent_t *evt,int fiber, int apv,int timesample,BstNode*root);
+
 int32_t commonmode_correction(int32_t A[]);
+
+void commonmode_substraction(apvEvent_t *evt,BstNode*root,corr*corrections);
 
 #endif
