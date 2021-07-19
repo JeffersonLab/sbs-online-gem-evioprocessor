@@ -8,7 +8,10 @@
 #define RAND_NUM()    ((double)rand() / RAND_MAX)
 
 apvEvent_t gApvEvent;
-corr bcorr; //vimukthi
+//vimukthi
+apvEvent_t apvEvent_new;
+apvEvent_t apvEvent_sorted;
+corr bcorr; 
 
 double rand_norm(double mean, double std)
 {
@@ -117,12 +120,14 @@ int main(int argc, char *argv[])
   // can loop this process (random event, hw algorithm process, sw algorithm process, check)
 
   //Vimukthi
+  
+  memcpy(&apvEvent_sorted, &gApvEvent, sizeof(apvEvent_t));
+
   BstNode*rootf=NULL;
 
-  commonmode_substraction(&gApvEvent,rootf,&bcorr);
+  commonmode_substraction(&apvEvent_sorted,rootf,&bcorr);
 
-  cout << "### Processed Event ###" << endl;
-  mpdssp_PrintEvent(&gApvEvent);
+  cout << "### Processed Event Cmsorted Method###" << endl;
+  mpdssp_PrintEvent(&apvEvent_sorted);
 
   return 0;
-}
