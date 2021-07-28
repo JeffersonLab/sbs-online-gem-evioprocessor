@@ -453,6 +453,117 @@ void avgBSamplesFifoProc(
 
 }
 
+//from Xinzhan's
+
+inline void find_max(
+	ap_int<13> min_vals,
+    ap_uint<5> max_pos,
+    ap_int<13> max
+  )
+{
+  ap_int<13> max_vars[4];
+  ap_uint<5> max_pos_vars[4];
+
+  for(int j=0;j<4;j++)
+  {
+    for(int i=0;i<5;i++)
+    {
+      if(!i || (min_vals[i+j*5] > max_vars[j]))
+      {
+        max_pos_vars[j] = i+j*5;
+        max_vars[j] = min_vals[i+j*5];
+      }
+    }
+  }
+
+  if( (max_vars[0] >= max_vars[1]) && (max_vars[0] >= max_vars[2]) && (max_vars[0] >= max_vars[3]) )
+  {
+    max_pos = max_pos_vars[0];
+    max = max_vars[0];
+  }
+  else if( (max_vars[1] >= max_vars[0]) && (max_vars[1] >= max_vars[2]) && (max_vars[1] >= max_vars[3]) )
+  {
+    max_pos = max_pos_vars[1];
+    max = max_vars[1];
+  }
+  else if( (max_vars[2] >= max_vars[0]) && (max_vars[2] >= max_vars[1]) && (max_vars[2] >= max_vars[3]) )
+  {
+    max_pos = max_pos_vars[2];
+    max = max_vars[2];
+  }
+  else
+  {
+    max_pos = max_pos_vars[3];
+    max = max_vars[3];
+  }
+}
+
+void apv_sorting_hls(
+    hls::stream<sample_data_t> &s_apv_samples,
+    hls::stream<apv_common_mode_t> &s_apv_common_mode
+  )
+{
+  enum {S_INIT, S_PRELOAD, S_FIND_MAX, S_TEST_AND_STORE};
+  static ap_int<13> min_vals[20];
+  static int cnt, ps = S_INIT;
+  static ap_uint<5> max_pos;
+  static ap_int<13> max;
+  static ap_int<18> sum;
+
+
+  switch(ps)
+  {
+  	  case S_INIT:
+    	if(!s_apv_samples.empty()){
+    	      sum = 0;
+    	      cnt = 0;
+    	      ps = S_PRELOAD;
+    }
+      break;
+
+    case S_PRELOAD:
+    {
+      sample_data_t s= s_apv_samples.read();
+      min_vals[cnt++] = s.data;
+      sum+= s.data;
+      if(cnt==20)
+        ps = S_FIND_MAX;
+      break;
+    }
+
+    case S_FIND_MAX:
+    {
+      find_max(min_vals, &max_pos, &max);
+      ps = S_TEST_AND_STORE;
+      break;
+    }
+
+    case S_TEST_AND_STORE:
+    {
+      // Test/store new sample
+      sample_data_t s = s_apv_samples.read();
+      if(s.data < max)
+      {
+        sum = sum-max+s.data;
+        min_vals[max_pos] = s.data;
+      }
+
+      if(cnt==127)
+      {
+        s_apv_common_mode.write(sum);
+        ps = S_INIT;
+      }
+      else
+      {
+        cnt++;
+        ps = S_FIND_MAX;
+      }
+
+      break;
+    }
+  }
+}
+
 
 void mpd_data_processor_main(
     hls::stream<event_data_t> &s_evIn,
@@ -468,8 +579,9 @@ void mpd_data_processor_main(
 {
   static hls::stream<avg_pre_header_t> s_avgAPreHeader, s_avgBPreHeader;
   static hls::stream<avg_header_t> s_avgAHeader, s_avgBHeader;
-  static hls::stream<sample_data_t> s_avgASamples, s_avgBSamplesOut;
+  static hls::stream<sample_data_t> s_avgASamples, s_avgBSamplesOut,s_apv_Samples //not using this for the time being;
   static hls::stream<sample_data_pair_t> s_avgBSamplesIn;
+  static hls::stream<apv_common_mode_t> s_apv_common_mode;
 
   frame_decoder(s_evIn, s_avgASamples, m_offset, s_avgAPreHeader);
 
@@ -480,4 +592,6 @@ void mpd_data_processor_main(
   avgBSamplesFifoProc(s_avgBSamplesOut, s_avgBSamplesIn);
 
   event_writer(s_evOut, s_avgBHeader, s_avgBSamplesIn, build_all_samples, enable_cm, fiber, m_apvThr);
+  
+  apv_sorting_hls(s_avgASamples,s_apv_common_mode); //here I am using s_avgASamples because I assumed that its the output from frame_decoder going into the avgB
 }
