@@ -58,6 +58,21 @@ typedef struct
   ap_int<13> max;
 } min_max_t;
 
+//from Xinzhan's
+typedef ap_int<18> apv_common_mode_t;
+
+inline void find_max(
+    ap_int<13> min_vals,
+    ap_uint<5> max_pos,
+    ap_int<13> max
+  );
+
+void apv_sorting_hls(
+    hls::stream<sample_data_t> &s_apv_samples,
+    hls::stream<apv_common_mode_t> &s_apv_common_mode
+  );
+
+
 void mpd_data_processor_main(
     hls::stream<event_data_t> &s_evIn,
     hls::stream<event_data_t> &s_evOut,
