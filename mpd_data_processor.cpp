@@ -579,7 +579,7 @@ void mpd_data_processor_main(
 {
   static hls::stream<avg_pre_header_t> s_avgAPreHeader, s_avgBPreHeader;
   static hls::stream<avg_header_t> s_avgAHeader, s_avgBHeader;
-  static hls::stream<sample_data_t> s_avgASamples, s_avgBSamplesOut,s_apv_Samples //not using this for the time being;
+  static hls::stream<sample_data_t> s_avgASamples, s_avgBSamplesOut,s_apv_Samples;
   static hls::stream<sample_data_pair_t> s_avgBSamplesIn;
   static hls::stream<apv_common_mode_t> s_apv_common_mode;
 
@@ -593,5 +593,5 @@ void mpd_data_processor_main(
 
   event_writer(s_evOut, s_avgBHeader, s_avgBSamplesIn, build_all_samples, enable_cm, fiber, m_apvThr);
   
-  apv_sorting_hls(s_avgASamples,s_apv_common_mode); //here I am using s_avgASamples because I assumed that its the output from frame_decoder going into the avgB
+  apv_sorting_hls(s_apv_Samples,s_apv_common_mode);
 }
