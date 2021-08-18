@@ -137,6 +137,11 @@
                 <option name="port" value="return" positionalBoolean="4"/>
             </pragma>
         </directive>
+        <directive functionName="apv_sorting_hls" label="" functionLabel="">
+            <pragma name="PIPELINE">
+                <option name="enable_flush" value="" positionalBoolean="1"/>
+            </pragma>
+        </directive>
     </sourceFile>
 </AutoPilot:ProjectResources>
 

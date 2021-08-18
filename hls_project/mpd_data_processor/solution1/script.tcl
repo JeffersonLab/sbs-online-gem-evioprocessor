@@ -11,8 +11,8 @@ add_files -tb ../mpd_data_processor_tb.cpp
 add_files -tb ../mpd_data_processor_wrapper.cpp
 add_files -tb ../mpd_data_processor_wrapper.h
 open_solution "solution1"
-set_part {xc7a100tcsg324-1}
-create_clock -period 8 -name default
+set_part {xc7vx550tffg1927-1}
+create_clock -period 16 -name default
 set_clock_uncertainty 1
 source "./mpd_data_processor/solution1/directives.tcl"
 csim_design -compiler gcc

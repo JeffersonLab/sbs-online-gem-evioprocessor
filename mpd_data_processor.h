@@ -16,26 +16,10 @@ typedef struct
 
 typedef struct
 {
-  ap_uint<12> apv_mask;
-  ap_uint<8> apv_n;
-  ap_uint<5> mpd_id;
-} frame_header_t;
-
-#define AVG_HEADER_TYPE_APVHDR    1
-#define AVG_HEADER_TYPE_EVEND     2
-
-typedef struct
-{
-  ap_int<13> avg;
-  ap_uint<1> tag;
-} avg_header_t;
-
-typedef struct
-{
-  ap_int<20> sum;
-  ap_uint<8> cnt;
-  ap_uint<1> tag;
-} avg_pre_header_t;
+  ap_uint<5> mpdid;
+  ap_uint<4> apvid;
+  ap_uint<1> evtend;
+} header_t;
 
 #define TAG_BLOCK_TRAILER   0x1
 #define TAG_APV_HEADER      0x2
@@ -47,30 +31,9 @@ typedef struct
   ap_int<13> data;
 } sample_data_t;
 
-typedef struct
-{
-  ap_int<13> data[2];
-} sample_data_pair_t;
-
-typedef struct
-{
-  ap_int<13> min;
-  ap_int<13> max;
-} min_max_t;
-
 //from Xinzhan's
-typedef ap_int<18> apv_common_mode_t;
-
-inline void find_max(
-    ap_int<13> min_vals,
-    ap_uint<5> max_pos,
-    ap_int<13> max
-  );
-
-void apv_sorting_hls(
-    hls::stream<sample_data_t> &s_apv_samples,
-    hls::stream<apv_common_mode_t> &s_apv_common_mode
-  );
+typedef ap_int<18> apv_common_mode_sum_t;
+typedef ap_int<13> apv_common_mode_avg_t;
 
 
 void mpd_data_processor_main(
