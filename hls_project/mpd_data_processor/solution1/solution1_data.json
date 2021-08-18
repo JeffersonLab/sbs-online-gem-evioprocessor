@@ -22,34 +22,28 @@
       "interface mpd_data_processor_main {{ap_stable positionBoolean0mode} {port positionBooleanTextRequiredbuild_debug_headers}} {}",
       "interface mpd_data_processor_main {{ap_stable positionBoolean0mode} {port positionBooleanTextRequiredenable_cm}} {}",
       "interface mpd_data_processor_main {{ap_stable positionBoolean0mode} {port positionBooleanTextRequiredfiber}} {}",
-      "data_pack mpd_data_processor_main {{variable positionBooleanTextRequireds_avgAPreHeader}} {}",
-      "data_pack mpd_data_processor_main {{variable positionBooleanTextRequireds_avgBPreHeader}} {}",
-      "data_pack mpd_data_processor_main {{variable positionBooleanTextRequireds_avgAHeader}} {}",
-      "data_pack mpd_data_processor_main {{variable positionBooleanTextRequireds_avgBHeader}} {}",
-      "data_pack mpd_data_processor_main {{variable positionBooleanTextRequireds_avgASamples}} {}",
-      "data_pack mpd_data_processor_main {{variable positionBooleanTextRequireds_avgBSamplesOut}} {}",
-      "data_pack mpd_data_processor_main {{variable positionBooleanTextRequireds_avgBSamplesIn}} {}",
       "resource mpd_data_processor_main {{variable positionBooleanTextRequiredm_offset} {core RAM_1P_BRAM}} {}",
       "resource mpd_data_processor_main {{variable positionBooleanTextRequiredm_apvThr} {core RAM_1P_BRAM}} {}",
       "resource mpd_data_processor_main {{variable positionBooleanTextRequiredm_apvThrB} {core RAM_1P_BRAM}} {}",
       "pipeline frame_decoder {{II 2} {enable_flush positionBoolean1}} {}",
-      "pipeline avgB {{II 2} {enable_flush positionBoolean1}} {}",
       "pipeline avgHeaderDiv {{II 64} {enable_flush positionBoolean1}} {}",
       "pipeline event_writer {{II 2} {enable_flush positionBoolean1}} {}",
-      "pipeline avgBSamplesFifoProc {{enable_flush positionBoolean1}} {}",
       "interface mpd_data_processor_main {{ap_ctrl_none positionBoolean0mode} {port positionBooleanTextRequiredreturn}} {}",
-      "pipeline apv_sorting_hls {{enable_flush positionBoolean1}} {}"
+      "pipeline apv_sorting_hls {{enable_flush positionBoolean1}} {}",
+      "stream mpd_data_processor_main {{variable positionBooleanTextRequireds_header} {depth 8} {dim 1}} {}",
+      "stream mpd_data_processor_main {{variable positionBooleanTextRequireds_apv_common_mode_avg} {depth 8} {dim 1}} {}",
+      "stream mpd_data_processor_main {{variable positionBooleanTextRequireds_apv_common_mode_sum} {depth 8} {dim 1}} {}"
     ]},
   "ClockInfo": {
     "ClockName": "ap_clk",
-    "ClockPeriod": "16",
+    "ClockPeriod": "8",
     "IsCombLogic": "0",
     "II": "x",
-    "Latency": "9",
+    "Latency": "5",
     "Uncertainty": "1"
   },
   "Xdc": {
-    "OocClocks": ["create_clock -name ap_clk -period 16.000 [get_ports ap_clk]"],
+    "OocClocks": ["create_clock -name ap_clk -period 8.000 [get_ports ap_clk]"],
     "FalsePaths": [
       "set_false_path -through [get_ports build_all_samples_V]",
       "set_false_path -through [get_ports build_debug_headers_V]",
@@ -72,33 +66,28 @@
       "impl\/vhdl\/apv_sorting_hls.vhd",
       "impl\/vhdl\/avgHeaderDiv.vhd",
       "impl\/vhdl\/event_writer.vhd",
-      "impl\/vhdl\/event_writer_avg_V.vhd",
-      "impl\/vhdl\/fifo_w1_d1_A.vhd",
-      "impl\/vhdl\/fifo_w4_d1_A.vhd",
-      "impl\/vhdl\/fifo_w5_d1_A.vhd",
-      "impl\/vhdl\/fifo_w13_d1_A.vhd",
-      "impl\/vhdl\/fifo_w18_d1_A.vhd",
+      "impl\/vhdl\/fifo_w1_d8_A.vhd",
+      "impl\/vhdl\/fifo_w4_d8_A.vhd",
+      "impl\/vhdl\/fifo_w5_d8_A.vhd",
+      "impl\/vhdl\/fifo_w13_d8_A.vhd",
+      "impl\/vhdl\/fifo_w13_d128_A.vhd",
+      "impl\/vhdl\/fifo_w18_d8_A.vhd",
       "impl\/vhdl\/frame_decoder.vhd",
       "impl\/vhdl\/mpd_data_processobkb.vhd",
-      "impl\/vhdl\/start_for_apv_sorcud.vhd",
-      "impl\/vhdl\/start_for_avgHeaddEe.vhd",
       "impl\/vhdl\/mpd_data_processor_main.vhd"
     ],
     "Verilog": [
       "impl\/verilog\/apv_sorting_hls.v",
       "impl\/verilog\/avgHeaderDiv.v",
       "impl\/verilog\/event_writer.v",
-      "impl\/verilog\/event_writer_avg_V.v",
-      "impl\/verilog\/event_writer_avg_V_ram.dat",
-      "impl\/verilog\/fifo_w1_d1_A.v",
-      "impl\/verilog\/fifo_w4_d1_A.v",
-      "impl\/verilog\/fifo_w5_d1_A.v",
-      "impl\/verilog\/fifo_w13_d1_A.v",
-      "impl\/verilog\/fifo_w18_d1_A.v",
+      "impl\/verilog\/fifo_w1_d8_A.v",
+      "impl\/verilog\/fifo_w4_d8_A.v",
+      "impl\/verilog\/fifo_w5_d8_A.v",
+      "impl\/verilog\/fifo_w13_d8_A.v",
+      "impl\/verilog\/fifo_w13_d128_A.v",
+      "impl\/verilog\/fifo_w18_d8_A.v",
       "impl\/verilog\/frame_decoder.v",
       "impl\/verilog\/mpd_data_processobkb.v",
-      "impl\/verilog\/start_for_apv_sorcud.v",
-      "impl\/verilog\/start_for_avgHeaddEe.v",
       "impl\/verilog\/mpd_data_processor_main.v"
     ],
     "Misc": ["impl\/misc\/logo.png"]
@@ -502,7 +491,7 @@
       ]
     },
     "Metrics": {
-      "frame_decoder": {
+      "event_writer": {
         "Latency": {
           "LatencyBest": "2",
           "LatencyAvg": "2",
@@ -512,13 +501,13 @@
           "PipelineType": "function"
         },
         "Timing": {
-          "Target": "16.00",
+          "Target": "8.00",
           "Uncertainty": "1.00",
-          "Estimate": "9.06"
+          "Estimate": "7.50"
         },
         "Area": {
-          "FF": "103",
-          "LUT": "844",
+          "FF": "364",
+          "LUT": "1467",
           "BRAM_18K": "0",
           "DSP48E": "0"
         }
@@ -533,85 +522,85 @@
           "PipelineType": "function"
         },
         "Timing": {
-          "Target": "16.00",
+          "Target": "8.00",
           "Uncertainty": "1.00",
           "Estimate": "5.77"
         },
         "Area": {
-          "FF": "79",
-          "LUT": "331",
+          "FF": "78",
+          "LUT": "322",
           "BRAM_18K": "0",
           "DSP48E": "0"
         }
       },
       "avgHeaderDiv": {
         "Latency": {
-          "LatencyBest": "1",
-          "LatencyAvg": "1",
-          "LatencyWorst": "1",
-          "PipelineII": "2",
-          "PipelineDepth": "2",
+          "LatencyBest": "3",
+          "LatencyAvg": "3",
+          "LatencyWorst": "3",
+          "PipelineII": "4",
+          "PipelineDepth": "4",
           "PipelineType": "function"
         },
         "Timing": {
-          "Target": "16.00",
+          "Target": "8.00",
           "Uncertainty": "1.00",
-          "Estimate": "13.42"
+          "Estimate": "5.59"
         },
         "Area": {
           "DSP48E": "1",
-          "FF": "16",
-          "LUT": "146",
+          "FF": "89",
+          "LUT": "158",
           "BRAM_18K": "0"
         }
       },
-      "event_writer": {
+      "frame_decoder": {
         "Latency": {
-          "LatencyBest": "2",
-          "LatencyAvg": "2",
-          "LatencyWorst": "2",
+          "LatencyBest": "3",
+          "LatencyAvg": "3",
+          "LatencyWorst": "3",
           "PipelineII": "2",
-          "PipelineDepth": "3",
+          "PipelineDepth": "4",
           "PipelineType": "function"
         },
         "Timing": {
-          "Target": "16.00",
+          "Target": "8.00",
           "Uncertainty": "1.00",
-          "Estimate": "14.65"
+          "Estimate": "6.13"
         },
         "Area": {
+          "FF": "126",
+          "LUT": "793",
           "BRAM_18K": "0",
-          "FF": "190",
-          "LUT": "1565",
           "DSP48E": "0"
         }
       },
       "mpd_data_processor_main": {
         "Latency": {
-          "LatencyBest": "9",
-          "LatencyAvg": "9",
-          "LatencyWorst": "9",
-          "PipelineII": "2",
+          "LatencyBest": "5",
+          "LatencyAvg": "5",
+          "LatencyWorst": "5",
+          "PipelineII": "4",
           "PipelineDepth": "",
           "PipelineType": "dataflow"
         },
         "Timing": {
-          "Target": "16.00",
+          "Target": "8.00",
           "Uncertainty": "1.00",
-          "Estimate": "14.65"
+          "Estimate": "7.50"
         },
         "Area": {
-          "BRAM_18K": "0",
+          "BRAM_18K": "7",
           "DSP48E": "1",
-          "FF": "448",
-          "LUT": "3165"
+          "FF": "927",
+          "LUT": "3136"
         }
       }
     }
   },
   "GenData": {
     "DataVersion": "0.1",
-    "Time": "2021-08-17 20:18:27 EDT",
+    "Time": "2021-08-17 20:58:43 EDT",
     "ToolName": "vivado_hls",
     "ToolVersion": "2017.4"
   }

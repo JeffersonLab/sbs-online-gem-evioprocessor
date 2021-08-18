@@ -29,7 +29,6 @@
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/include/ap_sysc"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/lnx64/tools/systemc/include"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/lnx64/tools/auto_cc/include"/>
-									<listOptionValue builtIn="false" value="/home/braydo/Projects/sbs-online-gem-evioprocessor/hls_project"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/include/etc"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1830158431" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
@@ -47,7 +46,6 @@
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/include/ap_sysc"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/lnx64/tools/systemc/include"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/lnx64/tools/auto_cc/include"/>
-									<listOptionValue builtIn="false" value="/home/braydo/Projects/sbs-online-gem-evioprocessor/hls_project"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/include/etc"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1856640100" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
@@ -115,7 +113,6 @@
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/include/ap_sysc"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/lnx64/tools/systemc/include"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/lnx64/tools/auto_cc/include"/>
-									<listOptionValue builtIn="false" value="/home/braydo/Projects/sbs-online-gem-evioprocessor/hls_project"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/include/etc"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.998951590" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -128,7 +125,6 @@
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/include/ap_sysc"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/lnx64/tools/systemc/include"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/lnx64/tools/auto_cc/include"/>
-									<listOptionValue builtIn="false" value="/home/braydo/Projects/sbs-online-gem-evioprocessor/hls_project"/>
 									<listOptionValue builtIn="false" value="/opt/Xilinx/Vivado/2017.4/include/etc"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.234355816" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>

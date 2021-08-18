@@ -111,9 +111,12 @@ void avgHeaderDiv(
     hls::stream<apv_common_mode_avg_t> &s_apv_common_mode_avg
   )
 {
-  apv_common_mode_sum_t sum = s_apv_common_mode_sum.read();
-  apv_common_mode_avg_t avg = sum / 20;
-  s_apv_common_mode_avg.write(avg);
+  if(!s_apv_common_mode_sum.empty())
+  {
+    apv_common_mode_sum_t sum = s_apv_common_mode_sum.read();
+    apv_common_mode_avg_t avg = sum / 20;
+    s_apv_common_mode_avg.write(avg);
+  }
 }
 
 void event_writer(
@@ -130,16 +133,19 @@ void event_writer(
   static enum eState {S_HEADER, S_HEADER_N, S_CM_AVG, S_READ0, S_READ1, S_READ2, S_WRITE0, S_WRITE1, S_WRITE2, S_ERROR} ps = S_HEADER;
   static ap_uint<4> apvid;
   static ap_int<13> avg[6];
+#pragma HLS ARRAY_PARTITION variable=avg complete dim=1
   static ap_fixed<13,13,AP_RND,AP_SAT> s[6];
+#pragma HLS ARRAY_PARTITION variable=s complete dim=1
   static ap_uint<7> sample_n;
   static ap_uint<3> cnt = 0;
-  static ap_int<16> sum;
+  static ap_int<16> sum, sum0, sum1, sum2;
   static header_t header;
   event_data_t event_data;
 
   switch(ps)
   {
     case S_HEADER:
+    {
       if(!s_header.empty())
       {
         header = s_header.read();
@@ -166,8 +172,10 @@ void event_writer(
         }
       }
       break;
+    }
 
     case S_HEADER_N:
+    {
       if(!s_header.empty())
       {
         header = s_header.read();
@@ -177,8 +185,10 @@ void event_writer(
           ps = S_CM_AVG;
       }
       break;
+    }
 
     case S_CM_AVG:
+    {
       if(!s_apv_common_mode_avg.empty())
       {
         avg[cnt++] = s_apv_common_mode_avg.read();
@@ -192,67 +202,64 @@ void event_writer(
           ps = S_HEADER_N;
       }
       break;
+    }
 
     case S_READ0:
-      if(!s_SamplesPar[0].empty() && !s_SamplesPar[1].empty())
+    {
+      if(!s_SamplesPar[0].empty() && !s_SamplesPar[1].empty() && !s_SamplesPar[2].empty() && !s_SamplesPar[3].empty() && !s_SamplesPar[4].empty() && !s_SamplesPar[5].empty())
       {
-        sample_data_t data0 = s_SamplesPar[0].read();
-        sample_data_t data1 = s_SamplesPar[1].read();
-        s[0] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data0.data - avg[0]) : (ap_fixed<13,13,AP_RND,AP_SAT>)data0.data;
-        s[1] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data1.data - avg[1]) : (ap_fixed<13,13,AP_RND,AP_SAT>)data1.data;
-        sum  = s[0] + s[1];
+        for(int i=0;i<6;i++)
+        {
+#pragma HLS UNROLL
+          sample_data_t data = s_SamplesPar[i].read();
+          s[i] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data.data - avg[i]) : (ap_fixed<13,13,AP_RND,AP_SAT>)data.data;
+        }
+
+        sum0 = s[0] + s[1];
+        sum1 = s[4] + s[5];
+        sum2 = s[2] + s[3];
         ps = S_READ1;
       }
       break;
+    }
 
     case S_READ1:
-      if(!s_SamplesPar[2].empty() && !s_SamplesPar[3].empty())
-      {
-        sample_data_t data0 = s_SamplesPar[2].read();
-        sample_data_t data1 = s_SamplesPar[3].read();
-        s[2] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data0.data - avg[2]) : (ap_fixed<13,13,AP_RND,AP_SAT>)data0.data;
-        s[3] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data1.data - avg[3]) : (ap_fixed<13,13,AP_RND,AP_SAT>)data1.data;
-        sum += s[2] + s[3];
-        ps = S_READ2;
-      }
+    {
+      sum = sum0+sum1+sum2;
+      ps = S_READ2;
       break;
+    }
 
     case S_READ2:
-      if(!s_SamplesPar[4].empty() && !s_SamplesPar[5].empty())
+    {
+      ap_uint<5> max_pos0_test, max_pos5_test;
+      ap_uint<16> sum_thr = 6 * m_apvThr[apvid][sample_n];
+
+      for(int i=0;i<5;i++)
       {
-        sample_data_t data0 = s_SamplesPar[4].read();
-        sample_data_t data1 = s_SamplesPar[5].read();
-        s[4] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data0.data - avg[4]) : (ap_fixed<13,13,AP_RND,AP_SAT>)data0.data;
-        s[5] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data1.data - avg[5]) : (ap_fixed<13,13,AP_RND,AP_SAT>)data1.data;
-        sum += s[4] + s[5];
-
-        ap_uint<5> max_pos0_test, max_pos5_test;
-        ap_uint<16> sum_thr;
-
-        for(int i=0;i<5;i++)
-        {
-          max_pos0_test[i] = (s[0] > s[1+i]) ? 1 : 0;
-          max_pos5_test[i] = (s[5] > s[i]  ) ? 1 : 0;
-        }
-
-        sum_thr = 6 * m_apvThr[apvid][sample_n];
-
-        // Check all s[].apv_id to make sure they are the sample - increment error counter
-        if(build_all_samples)
-          ps = S_WRITE0;
-        else if((sum < sum_thr) || max_pos0_test.and_reduce() || max_pos5_test.and_reduce())
-        {
-          if(sample_n++ == 127)
-            ps = S_HEADER;
-          else
-            ps = S_READ0;
-        }
-        else
-          ps = S_WRITE0;
+#pragma HLS UNROLL
+        max_pos0_test[i] = (s[0] > s[1+i]) ? 1 : 0;
+        max_pos5_test[i] = (s[5] > s[i]  ) ? 1 : 0;
       }
+
+      // Check all s[].apv_id to make sure they are the sample - increment error counter
+      if(build_all_samples)
+        ps = S_WRITE0;
+      else if((sum < sum_thr) || max_pos0_test.and_reduce() || max_pos5_test.and_reduce())
+      {
+        if(sample_n++ == 127)
+          ps = S_HEADER;
+        else
+          ps = S_READ0;
+      }
+      else
+        ps = S_WRITE0;
+
       break;
+    }
 
     case S_WRITE0:
+    {
       // Write samples 0,1
       event_data.data(12,0)  = s[0];
       event_data.data(25,13) = s[1];
@@ -263,8 +270,10 @@ void event_writer(
 
       ps = S_WRITE1;
       break;
+    }
 
     case S_WRITE1:
+    {
       // Write samples 2,3
       event_data.data(12,0)  = s[2];
       event_data.data(25,13) = s[3];
@@ -275,8 +284,10 @@ void event_writer(
 
       ps = S_WRITE2;
       break;
+    }
 
     case S_WRITE2:
+    {
       // Write samples 4,5
       event_data.data(12,0)  = s[4];
       event_data.data(25,13) = s[5];
@@ -290,9 +301,12 @@ void event_writer(
       else
         ps = S_READ0;
       break;
+    }
 
     case S_ERROR:
+    {
       break;
+    }
   }
 }
 
@@ -465,15 +479,17 @@ void mpd_data_processor_main(
   )
 {
   static hls::stream<sample_data_t> s_sample_data, s_sample_data_array[6];
+#pragma HLS STREAM variable=s_sample_data depth=128 dim=1
+#pragma HLS STREAM variable=s_sample_data_array depth=128
   static hls::stream<apv_common_mode_sum_t> s_apv_common_mode_sum;
   static hls::stream<apv_common_mode_avg_t> s_apv_common_mode_avg;
   static hls::stream<header_t> s_header;
 
-  frame_decoder(s_evIn, s_sample_data, s_sample_data_array, m_offset, s_header);
+  event_writer(s_evOut, s_header, s_apv_common_mode_avg, s_sample_data_array, build_all_samples, enable_cm, fiber, m_apvThr);
 
   apv_sorting_hls(s_sample_data,s_apv_common_mode_sum);
 
   avgHeaderDiv(s_apv_common_mode_sum, s_apv_common_mode_avg);
 
-  event_writer(s_evOut, s_header, s_apv_common_mode_avg, s_sample_data_array, build_all_samples, enable_cm, fiber, m_apvThr);
+  frame_decoder(s_evIn, s_sample_data, s_sample_data_array, m_offset, s_header);
 }
