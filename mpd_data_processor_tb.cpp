@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   }
 
   float threshold_rms_factor = 3.0;
-  int build_all_samples = 0;
+  int build_all_samples = 1; //zero suppression 1/0 disabled/enabled
   int build_debug_headers = 0;
   int enable_cm = 1;
 
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
   apvEvent_t apvEvent_new;
   mpdssp_DecodeEvent(&sspEvt_vec, &apvEvent_new);
 
-  cout << "### Processed Event ###" << endl;
+  cout << "### Processed Event Sorting Method (HLS) ###" << endl;
   mpdssp_PrintEvent(&apvEvent_new);
 
   // process gApvEvent here with simple algorithm and compare directly against apvEvent_new for any errors
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 
   commonmode_substraction(&apvEvent_sorted,rootf,&bcorr);
 
-  cout << "### Processed Event Cmsorted Method###" << endl;
+  cout << "### Processed Event Verification ###" << endl;
   mpdssp_PrintEvent(&apvEvent_sorted);
 
   return 0;
