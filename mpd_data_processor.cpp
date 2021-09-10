@@ -75,13 +75,13 @@ void frame_decoder(
         val = s_evIn.read();
 
         //Sample0
-        adc = (ap_int<13>)val.data(12,0) - (ap_int<13>)offset_data(12,0);
+        adc = (ap_int<13>)val.data(12,0)- (ap_int<13>)offset_data(12,0);
         sample_data.data = (ap_int<13>)adc;
         s_sample_data.write(sample_data);
         s_sample_data_array[time_cnt].write(sample_data);
 
         //Sample1
-        adc = (ap_int<13>)val.data(25,13) - (ap_int<13>)offset_data(25,13);
+        adc = (ap_int<13>)val.data(25,13)- (ap_int<13>)offset_data(25,13);
         sample_data.data = (ap_int<13>)adc;
         s_sample_data.write(sample_data);
         s_sample_data_array[time_cnt].write(sample_data);
@@ -115,6 +115,7 @@ void avgHeaderDiv(
   {
     apv_common_mode_sum_t sum = s_apv_common_mode_sum.read();
     apv_common_mode_avg_t avg = sum / 20;
+    //std::cout<<"Average HLS"<<avg<<" - ";
     s_apv_common_mode_avg.write(avg);
   }
 }
@@ -192,6 +193,7 @@ void event_writer(
       if(!s_apv_common_mode_avg.empty())
       {
         avg[cnt++] = s_apv_common_mode_avg.read();
+
         if(cnt == 6)
         {
           sample_n = 0;
@@ -212,7 +214,7 @@ void event_writer(
         {
 #pragma HLS UNROLL
           sample_data_t data = s_SamplesPar[i].read();
-          s[i] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data.data - avg[i]) : (ap_fixed<13,13,AP_RND,AP_SAT>)data.data;
+          s[i] = enable_cm ? (ap_fixed<13,13,AP_RND,AP_SAT>)(data.data - avg[i]): (ap_fixed<13,13,AP_RND,AP_SAT>)data.data;
         }
 
         sum0 = s[0] + s[1];
@@ -314,46 +316,47 @@ void event_writer(
 
 inline void find_max(
 	ap_int<13> min_vals[20],
-    ap_uint<5> max_pos,
-    ap_int<13> max
+    ap_uint<5>* max_pos,
+    ap_int<13>* max
   )
 {
   ap_int<13> max_vars[4];
   ap_uint<5> max_pos_vars[4];
-  std::cout<<"M1"<<"\n";
+  //std::cout<<"M1"<<"\n";
   for(int j=0;j<4;j++)
-  { std::cout<<"j: "<<j<<"\n";
+  { //std::cout<<"j: "<<j<<"\n";
     for(int i=0;i<5;i++)
     { //std::cout<<"M3";
       if(!i || (min_vals[i+j*5] > max_vars[j]))
       {
         max_pos_vars[j] = i+j*5;
         max_vars[j] = min_vals[i+j*5];
-        std::cout<<max_vars[j]<<"\n";
+        //std::cout<<max_vars[j]<<"\n";
       }
     }
   }
   //std::cout<<"M5";
   if( (max_vars[0] >= max_vars[1]) && (max_vars[0] >= max_vars[2]) && (max_vars[0] >= max_vars[3]) )
   {
-    max_pos = max_pos_vars[0];
-    max = max_vars[0];
+    *max_pos = max_pos_vars[0];
+    *max = max_vars[0];
   }
   else if( (max_vars[1] >= max_vars[0]) && (max_vars[1] >= max_vars[2]) && (max_vars[1] >= max_vars[3]) )
   {
-    max_pos = max_pos_vars[1];
-    max = max_vars[1];
+    *max_pos = max_pos_vars[1];
+    *max = max_vars[1];
   }
   else if( (max_vars[2] >= max_vars[0]) && (max_vars[2] >= max_vars[1]) && (max_vars[2] >= max_vars[3]) )
   {
-    max_pos = max_pos_vars[2];
-    max = max_vars[2];
+    *max_pos = max_pos_vars[2];
+    *max = max_vars[2];
   }
   else
   {
-    max_pos = max_pos_vars[3];
-    max = max_vars[3];
+    *max_pos = max_pos_vars[3];
+    *max = max_vars[3];
   }
+  //std::cout<<max<<" ";
 }
 
 void apv_sorting_hls(
@@ -373,11 +376,10 @@ void apv_sorting_hls(
   {
   	case S_INIT:
   	{
-  		std::cout <<"A";
+
     	if(!s_sample_data.empty()){
     	      sum = 0;
     	      cnt = 0;
-    	      std::cout <<"B";
     	      ps = S_PRELOAD;
     	}
   	}
@@ -385,14 +387,12 @@ void apv_sorting_hls(
 
     case S_PRELOAD:
     {
-      std::cout<<"C";
       if(!s_sample_data.empty()){
-    	  std::cout<<cnt;
 		  sample_data_t s= s_sample_data.read();
 		  min_vals[cnt++] = s.data;
 		  sum+= s.data;
+		  //std::cout<<s.data<<" ";
 		  if(cnt==20)
-			//std::cout<<cnt;
 			ps = S_FIND_MAX;
       }
       break;
@@ -402,8 +402,8 @@ void apv_sorting_hls(
     {
 
 	  find_max(min_vals, &max_pos, &max);
-	  std::cout<<"E";
 	  ps = S_TEST_AND_STORE;
+	  //std::cout<<max<<" ";
 	  break;
     }
 
@@ -411,24 +411,27 @@ void apv_sorting_hls(
     {
       // Test/store new sample
       if(!s_sample_data.empty()){
-    	  std::cout<<"F";
 		  sample_data_t s = s_sample_data.read();
-
+		  //std::cout<<s.data<<"  ";
 		  if(s.data < max)
 		  {
 			sum = sum-max+s.data;
 			min_vals[max_pos] = s.data;
+			//std::cout<<s.data<<" ";
 		  }
 
 		  if(cnt==127)
-		  {	std::cout<<"sum: "<<sum<<"\n";
+		  {
+			/*for (int i=0; i<20;i++){
+				std::cout<<min_vals[i]<<" ";
+			}*/
+			//std::cout<<"sum: "<<sum<<"\n";
 			s_apv_common_mode.write(sum);
 			ps = S_INIT;
 		  }
 		  else
 		  {
 			cnt++;
-			std::cout<<"cnt: "<<cnt;
 			ps = S_FIND_MAX;
 		  }
       }
@@ -487,9 +490,13 @@ void mpd_data_processor_main(
 
   event_writer(s_evOut, s_header, s_apv_common_mode_avg, s_sample_data_array, build_all_samples, enable_cm, fiber, m_apvThr);
 
+  //frame_decoder(s_evIn, s_sample_data, s_sample_data_array, m_offset, s_header);
+
   apv_sorting_hls(s_sample_data,s_apv_common_mode_sum);
 
   avgHeaderDiv(s_apv_common_mode_sum, s_apv_common_mode_avg);
+
+  //event_writer(s_evOut, s_header, s_apv_common_mode_avg, s_sample_data_array, build_all_samples, enable_cm, fiber, m_apvThr);
 
   frame_decoder(s_evIn, s_sample_data, s_sample_data_array, m_offset, s_header);
 }
