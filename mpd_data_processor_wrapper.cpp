@@ -406,7 +406,7 @@ int treeSize(BstNode* root) {
 
 void BsttoArray(BstNode *root, int32_t A[])
 {
-    //static int pos = 0; //issue is here I don't know how to resolve this
+    //static int pos = 0;
 	// global variable pos is used here
     if(root == NULL) return;
 
@@ -421,9 +421,17 @@ int32_t*sortingAlgo0(apvEvent_t *evt,int fiber, int apv,int timesample,BstNode*r
 {
 
 	for(int i{0};i<APV_STRIPS;i++)
-	{
-		root = Insert(root,evt -> data[fiber][apv][i][timesample]);
-
+	{	if (apv<15){
+			root = Insert(root,(evt -> data[fiber][apv][i][timesample])-offset_All[fiber][apv][i]);//handling offset correction
+		}
+		else{
+			if (i<16){
+				root = Insert(root,(evt -> data[fiber][apv][i][timesample])-avgAmin_All[fiber][i]);
+			}
+			else if(i<64){
+				root = Insert(root,(evt -> data[fiber][apv][i][timesample]));
+			}
+		}
 	}
 	int treeSZ = treeSize(root);
 	int32_t Arr0 [treeSZ];
@@ -442,6 +450,7 @@ int32_t commonmode_correction(int32_t A[])
 		total = total + A[i];
 	}
 	avg=total/20;
+	//std::cout<<"avg (verification)"<<avg;
 	return avg;
 }
 
@@ -467,7 +476,17 @@ void commonmode_substraction(apvEvent_t *evt,BstNode*root=NULL,corr*corrections=
 			 		     continue;
 			 for (int j{0};j<APV_STRIPS;j++){
 		 		for (int k{0}; k<6;k++){
-		 			evt->data[fiber][i][j][k]= evt->data[fiber][i][j][k]- corrections->values[fiber][i][j][k];
+		 			if (i<15){
+		 				evt->data[fiber][i][j][k]= evt->data[fiber][i][j][k]-offset_All[fiber][i][j]-corrections->values[fiber][i][j][k];//offset removed
+		 				}
+		 			else{
+		 				if (j<16){
+		 					evt->data[fiber][i][j][k]= evt->data[fiber][i][j][k]-avgAmin_All[fiber][j]-corrections->values[fiber][i][j][k];//offset removed
+		 					}
+		 				else if(j<64){
+		 					evt->data[fiber][i][j][k]= evt->data[fiber][i][j][k]-corrections->values[fiber][i][j][k];//offset removed
+		 					}
+		 				}
 		 			}
 		 		}
 		 	}
