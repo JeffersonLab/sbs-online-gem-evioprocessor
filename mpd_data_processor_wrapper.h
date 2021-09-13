@@ -26,7 +26,7 @@ typedef struct
 void mpdssp_DecodeEvent(vector<uint32_t> *vec, apvEvent_t *evt);
 
 // Print apvEvent_t
-void mpdssp_PrintEvent(apvEvent_t *evt);
+void mpdssp_PrintEvent(apvEvent_t *evt,char *filename);
 
 // apvEvent_t -> Raw SSP EVIO data vector (processed)
 vector<uint32_t> mpdssp_ProcessEvent(
