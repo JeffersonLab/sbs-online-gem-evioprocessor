@@ -1,4 +1,5 @@
 #include <fstream>
+#include <conio.h>
 #include <string>
 #include <ap_int.h>
 #include <hls_stream.h>
@@ -125,8 +126,8 @@ void mpdssp_DecodeEvent(vector<uint32_t> *vec, apvEvent_t *evt)
 }
 
 
-void mpdssp_PrintEvent(apvEvent_t *evt)
-{
+void mpdssp_PrintEvent(apvEvent_t *evt, char *filename)
+{ ofstream ofile; ofile.open(filename);
   printf("%s: [START OF EVENT]\n", __func__);
   for(int i=0;i<FIBER_NUM;i++)
   for(int j=0;j<APV_NUM_MAX;j++)
@@ -135,6 +136,7 @@ void mpdssp_PrintEvent(apvEvent_t *evt)
       continue;
 
     printf("[SSP FIBER %d,%d]\n", i, j);
+    ofile<<"[SSP FIBER "<<i<<","<<j<<"]\n";
     for(int k=0;k<APV_STRIPS;k++)
     {
       if( evt->data[i][j][k][0] || evt->data[i][j][k][1] ||
@@ -146,6 +148,9 @@ void mpdssp_PrintEvent(apvEvent_t *evt)
             evt->data[i][j][k][2], evt->data[i][j][k][3],
             evt->data[i][j][k][4], evt->data[i][j][k][5]
           );
+        ofile<<"APV "<<right<<setw(3)<<j<<", CH"<<right<<setw(3)<<k<<"\t";
+        ofile<<right<<setw(4)<<evt->data[i][j][k][0]<<" "<<setw(4)<<evt->data[i][j][k][1]<<" "<<setw(4)<<evt->data[i][j][k][2]<<" ";
+        ofile<<right<<setw(4)<<evt->data[i][j][k][3]<<" "<<setw(4)<<evt->data[i][j][k][4]<<" "<<setw(4)<<evt->data[i][j][k][5]<<"\n";
       }
     }
   }
