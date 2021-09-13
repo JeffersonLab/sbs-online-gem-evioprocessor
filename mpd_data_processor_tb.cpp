@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   int enable_cm = 1;
 
   cout << "### Original Event ###" << endl;
-  mpdssp_PrintEvent(&gApvEvent);
+  mpdssp_PrintEvent(&gApvEvent,"Original.dat");
 
   vector<uint32_t> sspEvt_vec = mpdssp_ProcessEvent(
       &gApvEvent,
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   mpdssp_DecodeEvent(&sspEvt_vec, &apvEvent_new);
 
   cout << "### Processed Event Sorting Method (HLS) ###" << endl;
-  mpdssp_PrintEvent(&apvEvent_new);
+  mpdssp_PrintEvent(&apvEvent_new,"HLSout.dat");
 
   // process gApvEvent here with simple algorithm and compare directly against apvEvent_new for any errors
   // can loop this process (random event, hw algorithm process, sw algorithm process, check)
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   commonmode_substraction(&apvEvent_sorted,rootf,&bcorr);
 
   cout << "### Processed Event Verification ###" << endl;
-  mpdssp_PrintEvent(&apvEvent_sorted);
+  mpdssp_PrintEvent(&apvEvent_sorted,"VerificationOut.dat");
 
   return 0;
 }
